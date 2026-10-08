@@ -1,8 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL;
-
-if (!API_URL) {
-    throw new Error('VITE_API_URL is not configured');
-}
+const API_URL =
+    import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 interface ApiOptions extends RequestInit {
     token?: string | null;
