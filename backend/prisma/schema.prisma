@@ -1,0 +1,154 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum AddressType {
+  HOME
+  BUSINESS
+  BILLING
+  SHIPPING
+  OTHER
+}
+
+enum ActivityType {
+  CUSTOMER_CREATED
+  CUSTOMER_UPDATED
+  CUSTOMER_ARCHIVED
+  CUSTOMER_ACTIVATED
+  CUSTOMER_DEACTIVATED
+  ADDRESS_ADDED
+  ADDRESS_UPDATED
+  ADDRESS_DELETED
+  NOTE_ADDED
+  DOCUMENT_UPLOADED
+  DOCUMENT_DELETED
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         UserRole   @default(STAFF)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  notes      CustomerNote[]
+  documents  CustomerDocument[]
+  activities Activity[]
+}
+
+model Customer {
+  id             String         @id @default(uuid()) @db.Uuid
+  customerNumber Int            @unique @default(autoincrement())
+  type           CustomerType
+  firstName      String?
+  lastName       String?
+  businessName   String?
+  email          String
+  phone          String
+  status         CustomerStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  addresses  Address[]
+  notes      CustomerNote[]
+  documents  CustomerDocument[]
+  activities Activity[]
+}
+
+model Address {
+  id           String      @id @default(uuid()) @db.Uuid
+  customerId   String      @db.Uuid
+  type         AddressType
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String?
+  postalCode   String?
+  country      String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+}
+
+model CustomerNote {
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String   @db.Uuid
+  authorId   String   @db.Uuid
+  note       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  author   User     @relation(fields: [authorId], references: [id])
+
+  @@index([customerId])
+  @@index([authorId])
+}
+
+model CustomerDocument {
+  id           String   @id @default(uuid()) @db.Uuid
+  customerId   String   @db.Uuid
+  uploadedById String   @db.Uuid
+  fileName     String
+  filePath     String
+  mimeType     String
+  fileSize     Int
+  documentType String
+  uploadedAt   DateTime @default(now())
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([customerId])
+  @@index([uploadedById])
+}
+
+model Activity {
+  id         String       @id @default(uuid()) @db.Uuid
+  customerId String       @db.Uuid
+  actorId    String       @db.Uuid
+  action     ActivityType
+  createdAt  DateTime     @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  actor    User     @relation(fields: [actorId], references: [id])
+
+  @@index([customerId])
+  @@index([actorId])
+  @@index([createdAt])
+}
