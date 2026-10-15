@@ -324,23 +324,7 @@ export default function CreateCustomerPage() {
                                 Cancel
                             </Link>
 
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="inline-flex h-10 min-w-[145px] items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                                {submitting ? (
-                                    <>
-                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                                        Creating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <PlusIcon />
-                                        Create customer
-                                    </>
-                                )}
-                            </button>
+
                         </div>
                     </div>
                 </form>
@@ -366,8 +350,8 @@ function TypeButton({
             onClick={onClick}
             aria-pressed={selected}
             className={`flex flex-1 items-center justify-center gap-2 rounded px-4 py-2.5 text-sm font-semibold transition ${selected
-                    ? 'bg-white text-blue-700 shadow-sm ring-1 ring-slate-200'
-                    : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-blue-700 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-600 hover:text-slate-900'
                 }`}
         >
             <span
